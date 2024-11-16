@@ -22,18 +22,27 @@ class AdbHelper:
     ]
 
     @classmethod
-    def adb(cls, *args, use_serial: bool = False) -> str:
-        cmd = [Config.get("system", "AdbPath")]
-        if use_serial:
-            cmd.extend(["-s", get_serial()])
-        cmd.extend(args)
+    def adb(cls, *args: str, progress: bool = False) -> str:
+        cmd = [Config.get("system", "AdbPath"), "-s", get_serial(), *args]
 
-        if cls._verbose:
+        stderr = None if progress else subprocess.DEVNULL
+        if Config.get("system", "Verbose"):
             logger.info(f"[bold][Subprocess][/bold] {" ".join(cmd)}")
-        output = subprocess.check_output(cmd).decode("utf-8").strip()
-        if cls._verbose:
+            output = subprocess.check_output(cmd, stderr=stderr).decode("utf-8").strip()
             logger.info(f"[bold][Subprocess][/bold] {output}")
+        else:
+            output = subprocess.check_output(cmd, stderr=stderr).decode("utf-8").strip()
+
         return output
+
+    @classmethod
+    def exec_out(cls, *args: str, as_root: bool = False) -> str:
+        cmd = ["exec-out"]
+        if as_root:
+            cmd.extend(["su", "-c"])
+        cmd.append(" ".join(args))
+
+        return cls.adb(*cmd)
 
     @classmethod
     def kill_server(cls):
@@ -63,23 +72,36 @@ class AdbHelper:
         return output
 
     @classmethod
-    def pull(cls, *files: list[str], dst_dir: str = ".", use_serial: bool = True):
+    def pull(
+        cls, *files: str, dst_dir: str = ".", add_prefix: bool = False, progress: bool = False, log: bool = True
+    ) -> tuple[list[str], list[str]]:
+        os.makedirs(dst_dir, exist_ok=True)
+
         if not cls._connected:
             logger.info(f"[bold][AdbHelper][/bold] Using {cls.connect()}")
 
-        os.makedirs(dst_dir, exist_ok=True)
+        succeeded, failed = [], []
         for file in files:
-            folder = os.path.dirname(file)
-            if folder != "":
-                os.makedirs(os.path.join(dst_dir, folder), exist_ok=True)
+            if add_prefix:
+                path = f"/sdcard/Android/data/{get_package()}/files/AssetBundles/{file}"
+                folder = f"{dst_dir}/{os.path.dirname(file)}"
+                os.makedirs(folder, exist_ok=True)
+            else:
+                path = file
+                folder = dst_dir
 
             try:
-                path = f"/sdcard/Android/data/{get_package()}/files/AssetBundles/{file}"
-                cls.adb("pull", path, os.path.join(dst_dir, folder), use_serial=use_serial)
+                cls.adb("pull", path, folder, progress=progress)
             except subprocess.CalledProcessError:
-                logger.warning(f"[bold][[red]Failed[/red]][/bold] '{file}'")
+                failed.append(file)
+                if log:
+                    logger.warning(f"[bold][[red]Failed[/red]][/bold] '{file}'")
             else:
-                logger.info(f"[bold][[green]Succeeded[/green]][/bold] '{file}'")
+                succeeded.append(file)
+                if log:
+                    logger.info(f"[bold][[green]Succeeded[/green]][/bold] '{file}'")
+
+        return succeeded, failed
 
     @classmethod
     def detect(cls):

@@ -8,6 +8,7 @@ class Config:
     _default = {
         "system/RecentPath": "",
         "system/Compression": "original",
+        "system/Verbose": "false",
         "system/AdvFaceMode": "off",
         "system/AdbPath": "3rdparty/adb.exe",
         "system/Serial": "auto",

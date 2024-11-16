@@ -5,7 +5,8 @@ dependencies
 out
 projects
 tools
-i18n/*.qm
 src/spine
+*.apk
 *.bat
 *.ini
+*.qm

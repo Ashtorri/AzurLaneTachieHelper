@@ -47,14 +47,14 @@ jobs:
         with:
           nuitka-version: main
           script-name: app.py
-          standalone: true
-          onefile: false
-          mingw64: false
+          mode: standalone
+          mingw64: true
           enable-plugins: pyside6
           nofollow-import-to: tkinter
           windows-icon-from-ico: ico\cheshire.ico
           include-data-files: |
             ${{env.PURELIB}}\UnityPy\resources\uncompressed.tpk=UnityPy\resources\
+            ${{env.PURELIB}}\archspec\json\cpu\*.json=archspec\json\cpu\
             i18n\*.qm=i18n\
           output-file: AzurLaneTachieHelper
     
@@ -70,4 +70,5 @@ jobs:
         with:
           name: ${{env.APP_NAME}}-x86_64
           path: build/${{env.APP_NAME}}.7z
+          compression-level: 0
           retention-days: 21

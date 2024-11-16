@@ -50,7 +50,7 @@ class AssetManager:
 
     def dependency(self, file: str) -> list[str]:
         if not os.path.exists("dependencies"):
-            AdbHelper.pull("dependencies")
+            AdbHelper.pull("dependencies", add_prefix=True)
         env = UnityPy.load("dependencies")
         mb: MonoBehaviour = [x.read() for x in env.objects if x.type == ClassIDType.MonoBehaviour][0]
         idx = mb.m_Keys.index(f"painting/{os.path.basename(file)}")

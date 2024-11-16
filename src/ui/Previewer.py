@@ -40,10 +40,10 @@ class Previewer(QWidget):
     def display_painting(self, layer: Layer):
         self.layer = layer
         self.fit = lambda x: ImageOps.contain(x, (layer.spriteSize / 3).round(), Image.Resampling.BICUBIC)
+        self.lPath.setText(f"Path: {QDir.toNativeSeparators(layer.path)}")
         self.lName.setText(f"Name: {layer.texture2D.m_Name}")
         self.lWidth.setText(f"Width: {layer.spriteSize.X}")
         self.lHeight.setText(f"Height: {layer.spriteSize.Y}")
-        self.lPath.setText(QDir.toNativeSeparators(layer.path))
         self.refresh()
 
     def display_face(self, layer: FaceLayer):

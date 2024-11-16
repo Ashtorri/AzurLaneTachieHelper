@@ -16,7 +16,7 @@ from ..ui import TachiePuller
 
 def pull_tachie():
     if not os.path.exists("dependencies"):
-        AdbHelper.pull("dependencies")
+        AdbHelper.pull("dependencies", add_prefix=True)
     env = UnityPy.load("dependencies")
     mb: MonoBehaviour = [x.read() for x in env.objects if x.type == ClassIDType.MonoBehaviour][0]
     data = {k: v.m_Dependencies for k, v in zip(mb.m_Keys, mb.m_Values) if k.startswith("painting/")}
@@ -38,7 +38,7 @@ class File(QMenu):
             self.tr("Pull Dependencies"),
             shortcut="Ctrl+Z",
             enabled=True,
-            triggered=lambda: AdbHelper.pull("dependencies"),
+            triggered=lambda: AdbHelper.pull("dependencies", add_prefix=True),
         )
         self.aPullTachie = QAction(self.tr("Pull Tachie"), shortcut="Ctrl+X", enabled=True, triggered=pull_tachie)
 
