@@ -58,4 +58,4 @@ def get_serial() -> str:
 
 def get_package() -> str:
     server = Config.get("system", "Server").upper()
-    return {"CN": "com.bilibili.azurlane", "JP": "com.YoStarJP.AzurLane", "EN": "com.YoStarEN.AzurLane"}[server]
+    return {"CN": "com.bilibili.blhx.bilibiliMove", "JP": "com.YoStarJP.AzurLane", "EN": "com.YoStarEN.AzurLane"}[server]
